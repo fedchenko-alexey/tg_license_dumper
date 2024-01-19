@@ -115,7 +115,7 @@ func downloadFile(filePath string) string {
 	builder.WriteString("/")
 	builder.WriteString(filePath)
 
-	resp, err := grab.Get(".", builder.String())
+	resp, err := grab.Get("/tmp", builder.String())
 	if err != nil {
 		return ""
 	}
