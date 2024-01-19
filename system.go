@@ -17,7 +17,8 @@ import (
 
 // ConfigData contains config data. Api keys, paths
 type ConfigData struct {
-	botAPIKey string
+	botAPIKey     string
+	botDumperPath string
 }
 
 type FileProperties struct {
@@ -39,9 +40,14 @@ func loadConfigFromEnv() ConfigData {
 		log.Panic("No bot api key found. Please set TELEGRAM_BOT_API_KEY_LICENSE env")
 	}
 
+	botDumperPath, isSet := os.LookupEnv("TELEGRAM_BOT_DUMPER_PATH")
+	if !isSet {
+		log.Panic("No bot api key found. Please set TELEGRAM_BOT_DUMPER_PATH env")
+	}
+
 	log.Println(botAPIKey + " ")
 
-	return ConfigData{botAPIKey}
+	return ConfigData{botAPIKey, botDumperPath}
 }
 
 func getLicenseDump(fileId string) string {
@@ -70,11 +76,11 @@ func removeLocalFile(fileSystemPath string) {
 }
 
 func fileIsLicense(fileSize int, fileName string) bool {
-	if fileSize > 500 {
+	if strings.HasSuffix(fileName, "lickey") {
 		return true
 	}
 
-	if strings.HasSuffix(fileName, "lickey") {
+	if fileSize < 700 {
 		return true
 	}
 
@@ -124,7 +130,7 @@ func downloadFile(filePath string) string {
 }
 
 func getDumpString(fileSystemPath string) string {
-	out, err := exec.Command("./dumper", fileSystemPath).Output()
+	out, err := exec.Command(SystemConfig.botDumperPath, fileSystemPath).Output()
 	if err != nil {
 		return "Ошибка дампа файла."
 	}
