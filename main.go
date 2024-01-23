@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/mattn/go-sqlite3"
@@ -65,10 +66,23 @@ func replyMessage(chatId int64, messageId int, text string, bot *tgbotapi.BotAPI
 
 	fmt.Println("reply to", messageId)
 
-	bot.Send(replyMessage)
+	replyedMessage, _ := bot.Send(replyMessage)
+
+	startTimerToDeleteMessage(replyedMessage.Chat.ID, replyedMessage.MessageID, bot)
 }
 
 func replyDump(chatId int64, messageId int, fileId string, bot *tgbotapi.BotAPI) {
 	text := getLicenseDump(fileId)
 	replyMessage(chatId, messageId, text, bot)
+}
+
+func startTimerToDeleteMessage(chatId int64, messageId int, bot *tgbotapi.BotAPI) {
+	removeReplyTimer := time.NewTimer(time.Duration(12) * time.Second)
+	go func() {
+		<-removeReplyTimer.C
+		fmt.Println("Message", messageId, "deleted")
+		removeReplyTimer.Stop()
+		deleteConfig := tgbotapi.NewDeleteMessage(int64(chatId), messageId)
+		bot.DeleteMessage(deleteConfig)
+	}()
 }

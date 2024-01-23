@@ -76,11 +76,7 @@ func removeLocalFile(fileSystemPath string) {
 }
 
 func fileIsLicense(fileSize int, fileName string) bool {
-	if strings.HasSuffix(fileName, "lickey") {
-		return true
-	}
-
-	if fileSize < 700 {
+	if (strings.HasSuffix(fileName, "lickey")) && (fileSize < 700) {
 		return true
 	}
 
