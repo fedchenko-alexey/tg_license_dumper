@@ -77,7 +77,7 @@ func replyDump(chatId int64, messageId int, fileId string, bot *tgbotapi.BotAPI)
 }
 
 func startTimerToDeleteMessage(chatId int64, messageId int, bot *tgbotapi.BotAPI) {
-	removeReplyTimer := time.NewTimer(time.Duration(12) * time.Second)
+	removeReplyTimer := time.NewTimer(time.Duration(SystemConfig.botAutodeleteTiming) * time.Second)
 	go func() {
 		<-removeReplyTimer.C
 		fmt.Println("Message", messageId, "deleted")

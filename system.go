@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/cavaliergopher/grab/v3"
@@ -17,8 +18,9 @@ import (
 
 // ConfigData contains config data. Api keys, paths
 type ConfigData struct {
-	botAPIKey     string
-	botDumperPath string
+	botAPIKey           string
+	botDumperPath       string
+	botAutodeleteTiming int
 }
 
 type FileProperties struct {
@@ -45,9 +47,16 @@ func loadConfigFromEnv() ConfigData {
 		log.Panic("No bot api key found. Please set TELEGRAM_BOT_DUMPER_PATH env")
 	}
 
-	log.Println(botAPIKey + " ")
+	botAutodeleteTiming, isSet := os.LookupEnv("TELEGRAM_BOT_AUTODELETE_SECONDS")
+	if !isSet {
+		log.Panic("No bot api key found. Please set TELEGRAM_BOT_DUMPER_PATH env")
+	}
+	botTiming, err := strconv.Atoi(botAutodeleteTiming)
+	if err != nil {
+		botTiming = 60
+	}
 
-	return ConfigData{botAPIKey, botDumperPath}
+	return ConfigData{botAPIKey, botDumperPath, botTiming}
 }
 
 func getLicenseDump(fileId string) string {
